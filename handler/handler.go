@@ -71,6 +71,8 @@ func SuccedHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "文件上传成功")
 }
 
+// QueryFileInfoHandler 查询 file 信息接口
+// url： /file/meta?sha1=3bc5f45eb1cf75eff7f3e56c514748a11e84cdba
 func QueryFileInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		sha1 := r.FormValue("sha1")
