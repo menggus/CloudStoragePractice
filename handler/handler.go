@@ -7,6 +7,7 @@ import (
 	"cloudstorage/v1/meta"
 	"cloudstorage/v1/utils"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -84,5 +85,26 @@ func QueryFileInfoHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		io.WriteString(w, string(fj))
+	}
+}
+
+// DownloadFileHandler 下载文件接口
+func DownloadFileHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		r.ParseForm()
+		sha1 := r.FormValue("sha1")
+		filemeta := meta.GetFileMeta(sha1)
+
+		data, err := ioutil.ReadFile(filemeta.FilePath)
+		if err != nil {
+			log.Printf("File Not Found: %s\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// 返回文件数据设置header
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("content-disposition", fmt.Sprintf("attachment;filename=\"%s\"", filemeta.FileName))
+		w.Write(data)
 	}
 }
