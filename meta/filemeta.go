@@ -2,6 +2,7 @@ package meta
 
 import (
 	db "cloudstorage/v1/db"
+	"log"
 )
 
 type FileMeta struct {
@@ -32,6 +33,23 @@ func UpdateFileMetasDB(f FileMeta) bool {
 // GetFileMeta 通过sha1值获取文件元信息
 func GetFileMeta(sha string) FileMeta {
 	return fileMetas[sha]
+}
+
+// GetFileMetaDB 从数据库获取文件元信息
+func GetFileMetaDB(filesha1 string) FileMeta {
+	file, err := db.TabFileDataQuery(filesha1)
+	if err != nil {
+		log.Printf("Query Failed: %s\n", err)
+		return FileMeta{}
+	}
+	filemeta := FileMeta{
+		FileSha1: file.FileSha1,
+		FileName: file.FileName.String,
+		FilePath: file.FileAddr.String,
+		FileSize: file.FileSize.Int64,
+	}
+
+	return filemeta
 }
 
 // DeletaFileMeta 删除文件
