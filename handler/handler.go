@@ -75,6 +75,7 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// SuccedHandler 上传成功提示
 func SuccedHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "文件上传成功")
 }
@@ -84,7 +85,9 @@ func SuccedHandler(w http.ResponseWriter, r *http.Request) {
 func QueryFileInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		sha1 := r.FormValue("sha1")
-		filemeta := meta.GetFileMeta(sha1)
+
+		//filemeta := meta.GetFileMeta(sha1)
+		filemeta := meta.GetFileMetaDB(sha1)
 
 		fj, err := json.Marshal(filemeta)
 		if err != nil {
