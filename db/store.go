@@ -45,8 +45,7 @@ type TabFile struct {
 
 // TabFileDataQuery 从数据库中获取文件信息
 func TabFileDataQuery(fileSha1 string) (*TabFile, error) {
-	stmt, err := mydb.DBConnect().Prepare("select file_sha1, file_name, file_addr, file_size form tabfile" +
-		"where file_sha1=? and status=1 limit 1")
+	stmt, err := mydb.DBConnect().Prepare("select file_sha1, file_name, file_addr, file_size from tabfile where file_sha1=? and status=1 limit 1")
 	if err != nil {
 		log.Printf("Failed query sql: %s\n", err)
 		return nil, err
