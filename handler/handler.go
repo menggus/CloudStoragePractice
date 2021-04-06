@@ -48,6 +48,7 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 		nf, err := os.Create(fileMeta.FilePath)
 		if err != nil {
 			log.Printf("Failed create local new file: %s\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		defer nf.Close()
@@ -55,6 +56,7 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 		fileMeta.FileSize, err = io.Copy(nf, ff)
 		if err != nil {
 			log.Printf("Failed save upload file: %s\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		// 上传文件的sha1值
@@ -62,8 +64,13 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 		fileMeta.FileSha1 = utils.FileSha1(nf)
 
 		// 上传存储元信息
-		meta.UpdateFileMetas(fileMeta)
-
+		//meta.UpdateFileMetas(fileMeta)
+		ok := meta.UpdateFileMetasDB(fileMeta)
+		if !ok {
+			log.Printf("File upload failed")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		http.Redirect(w, r, "/msg/succed", http.StatusFound)
 	}
 }
@@ -91,20 +98,70 @@ func QueryFileInfoHandler(w http.ResponseWriter, r *http.Request) {
 // DownloadFileHandler 下载文件接口
 func DownloadFileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		r.ParseForm()
+		// r.ParseForm()
 		sha1 := r.FormValue("sha1")
 		filemeta := meta.GetFileMeta(sha1)
 
+		// 这里只是针对于小文件的读取，大文件需要以流的方式来读
 		data, err := ioutil.ReadFile(filemeta.FilePath)
 		if err != nil {
 			log.Printf("File Not Found: %s\n", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
 		// 返回文件数据设置header
-		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Content-Type", "application/octect-stream")
 		w.Header().Set("content-disposition", fmt.Sprintf("attachment;filename=\"%s\"", filemeta.FileName))
 		w.Write(data)
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+// RenameHandler 重命名文件名
+func RenameHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "PUT" {
+		sha1 := r.FormValue("sha1")
+		op := r.FormValue("op")
+		rname := r.FormValue("name")
+		if op != "0" {
+			log.Println("操作无效........")
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		file := meta.GetFileMeta(sha1)
+		file.FileName = rname
+
+		// 更新 filemeta
+		meta.UpdateFileMetas(file)
+
+		data, err := json.Marshal(file)
+		if err != nil {
+			log.Printf("Rename Failed：%s\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		io.WriteString(w, string(data))
+
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+// DeleteFileHandler 删除文件接口
+func DeleteFileHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "DELETE" {
+		sha1 := r.FormValue("sha1")
+		ok := meta.DeletaFileMeta(sha1)
+		if !ok {
+			log.Printf("delete file failed\n")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		// 云存储中文件的删除基本上都是 不删除实物
+		io.WriteString(w, "删除成功....")
+	} else {
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
