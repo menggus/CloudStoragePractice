@@ -49,11 +49,14 @@ func TabUserDataQuery(username string, password string) bool {
 	}
 
 	// todo 校验没通过
-
+	row := mydb.ParseRows(rows)
 	userpassword := utils.Sha1([]byte(password))
+	if len(row) > 0 && string(row[0]["user_pwd"].([]byte)) == userpassword {
 
-	log.Println(userpassword)
-	return true
+		return true
+	}
+
+	return false
 }
 
 // TabTokenDataInsert 写入token
