@@ -75,7 +75,7 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// SuccedHandler 上传成功提示
+// SuccedHandler 上传成功跳转提示接口
 func SuccedHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "文件上传成功")
 }
