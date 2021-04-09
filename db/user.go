@@ -48,14 +48,14 @@ func TabUserDataQuery(username string, password string) bool {
 		return false
 	}
 
-	// todo 校验没通过
 	row := mydb.ParseRows(rows)
 	userpassword := utils.Sha1([]byte(password))
-	if len(row) > 0 && string(row[0]["user_pwd"].([]byte)) == userpassword {
 
+	if len(row) > 0 && string(row[0]["user_pwd"].([]byte)) == userpassword {
+		log.Println("该用户已经注册，登录成功")
 		return true
 	}
-
+	log.Println("不存在记录......")
 	return false
 }
 

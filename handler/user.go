@@ -4,7 +4,6 @@ import (
 	"cloudstorage/v1/db"
 	"cloudstorage/v1/utils"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -51,7 +50,6 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
-
 }
 
 // UserLoginHandler 用户登录
@@ -74,11 +72,10 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 		oku := db.TabUserDataQuery(username, password)
 		if !oku {
 			log.Println("查询用户不存在")
-			io.WriteString(w, "查询用户不存在")
+			w.Write([]byte("查询用户不存在"))
 			return
 		}
 
-		log.Println(username, password)
 		// 生成token 并写入数据库中
 		token := GetToken(username)
 
@@ -89,12 +86,22 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// 返回token值写入到cookie
-		//r.AddCookie()
+		// 登录成功，返回数据
+		res := utils.RespMsg{
+			Code: 0,
+			Msg:  "登录成功",
+			Data: struct {
+				Location string
+				UserName string
+				Token    string
+			}{
+				Location: "/static/view/home.html",
+				UserName: username,
+				Token:    token,
+			},
+		}
 
-		// 重定向首页
-		w.Write([]byte("http://" + r.Host + "/static/view/home.html"))
-
+		w.Write(res.JSONBytes())
 	}
 }
 

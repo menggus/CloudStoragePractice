@@ -33,6 +33,7 @@ func ParseRows(rows *sql.Rows) []map[string]interface{} {
 	for j := range values {
 		scanArgs[j] = &values[j]
 	}
+	// scanArgs:  [指针地址1，指针地址2，指针地址3]
 
 	record := make(map[string]interface{})
 	records := make([]map[string]interface{}, 0)
@@ -42,6 +43,7 @@ func ParseRows(rows *sql.Rows) []map[string]interface{} {
 		checkErr(err)
 
 		for i, col := range values {
+
 			if col != nil {
 				record[columns[i]] = col
 			}
