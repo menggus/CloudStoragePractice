@@ -113,3 +113,22 @@ func GetToken(username string) string {
 	token_prefix := utils.MD5([]byte(username + ts + token_salt))
 	return token_prefix + ts[:8]
 }
+
+// UserInfoHandler 用户信息
+func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		// 展示用户信息
+		username := r.FormValue("username")
+		token := r.FormValue("token")
+		// 校验token
+		ok := db.IsValidateToken(username, token)
+		if !ok {
+			log.Println("token validate failed")
+			w.Write([]byte("token validate failed"))
+			return
+		}
+		// 校验成功后，获取用户信息
+
+		// 返回用户数据信息
+	}
+}

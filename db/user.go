@@ -82,3 +82,26 @@ func TabTokenDataInsert(username string, token string) bool {
 	}
 	return true
 }
+
+// IsValidateToken  验证token的有效性
+func IsValidateToken(u string, p string) bool {
+	stmt, err := mydb.DBConnect().Prepare("SELECT token FROM tabtoken WHERE user_name=\"?\"")
+	if err != nil {
+		log.Printf("prepare sql failed: %s\n", err)
+		return false
+	}
+	defer stmt.Close()
+
+	var pwd string
+	err = stmt.QueryRow(u).Scan(&pwd)
+	if err != nil {
+		log.Printf("query row failed: %s\n", err)
+		return false
+	}
+
+	if pwd != p {
+		return false
+	}
+
+	return true
+}
