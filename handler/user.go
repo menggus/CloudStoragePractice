@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-const Secrete = "#@$$@dosage@!#$"
-
 // UserRegisterHandler 用户注册
 func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -37,9 +35,7 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("非法的账户密码"))
 			return
 		}
-		passwrodSecret := utils.Sha1([]byte(passwrod + Secrete))
-		log.Println(passwrodSecret)
-
+		passwrodSecret := utils.Sha1([]byte(passwrod + utils.Secrete))
 		// 调用数据库接口，插入数据
 		ok := db.TabUserDataInsert(username, passwrodSecret)
 		if !ok {

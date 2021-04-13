@@ -3,7 +3,6 @@ package handler
 import (
 	"cloudstorage/v1/db"
 	"cloudstorage/v1/utils"
-	"log"
 	"net/http"
 )
 
@@ -24,7 +23,6 @@ func FileDataQuery(w http.ResponseWriter, r *http.Request) {
 			Msg:  "succeed",
 			Data: data,
 		}
-		log.Printf("%+v\n", res)
 
 		w.Write(res.JSONBytes())
 	}

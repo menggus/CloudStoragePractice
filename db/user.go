@@ -59,7 +59,7 @@ func TabUserDataQuery(username string, password string) bool {
 	}
 
 	row := mydb.ParseRows(rows)
-	userpassword := utils.Sha1([]byte(password))
+	userpassword := utils.Sha1([]byte(password + utils.Secrete))
 
 	if len(row) > 0 && string(row[0]["user_pwd"].([]byte)) == userpassword {
 		log.Println("该用户已经注册，登录成功")
@@ -104,8 +104,6 @@ func IsValidateToken(u string, p string) bool {
 
 	var pwd string
 	err = stmt.QueryRow(u).Scan(&pwd)
-
-	log.Println(pwd)
 
 	if err != nil {
 		log.Printf("query row failed: %s\n", err)
