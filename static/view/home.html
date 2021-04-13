@@ -65,6 +65,13 @@
 </body>
 
 <script lang="javascript">
+
+  function queryParams() {
+    var username = localStorage.getItem("username");
+    var token = localStorage.getItem("token");
+    return 'username=' + username + '&token=' + token;
+  }
+
   window.onload = function () {
     var username = document.getElementById('username');
     $.ajax({
@@ -137,7 +144,7 @@
   }
 
   function toUploadFile() {
-    window.location.href = '/file/upload?' + queryParams();
+    window.location.href = '/file?' + queryParams();
   }
 
   function downloadFile(durl) {
