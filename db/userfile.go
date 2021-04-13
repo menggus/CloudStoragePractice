@@ -30,7 +30,10 @@ func TabUserFileQueryRows(u string) ([]map[string]interface{}, error) {
 		log.Printf("TabUserFileQueryRows sql query failed: %s\n", err)
 		return nil, err
 	}
+
+	defer rows.Close()
 	userfiles := mydb.ParseRows(rows)
+
 	return userfiles, nil
 }
 

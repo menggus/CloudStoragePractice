@@ -35,21 +35,23 @@ func ParseRows(rows *sql.Rows) []map[string]interface{} {
 	}
 	// scanArgs:  [指针地址1，指针地址2，指针地址3]
 
-	record := make(map[string]interface{})
+	// record := make(map[string]interface{})
+	// 上述放到循环外层会出现bug，因为record为map类型，引用类型，当record改变，对其引用的slice也会改变其值
 	records := make([]map[string]interface{}, 0)
 	for rows.Next() {
 		//将行数据保存到record字典
+		record := make(map[string]interface{})
 		err := rows.Scan(scanArgs...)
 		checkErr(err)
-
 		for i, col := range values {
-
 			if col != nil {
 				record[columns[i]] = col
 			}
 		}
+		// todo
 		records = append(records, record)
 	}
+
 	return records
 }
 
