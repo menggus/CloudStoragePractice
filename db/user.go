@@ -6,6 +6,15 @@ import (
 	"log"
 )
 
+type User struct {
+	Username     string
+	Email        string
+	Phone        string
+	SignupAt     string
+	LastActiveAt string
+	Status       int
+}
+
 // TabUserDataInsert 插入用户数据
 func TabUserDataInsert(username string, passowrd string) bool {
 	stmt, err := mydb.DBConnect().Prepare("INSERT IGNORE INTO tabuser (`user_name`, `user_pwd`) VALUES (?,?)")
@@ -37,6 +46,7 @@ func TabUserDataQuery(username string, password string) bool {
 		log.Printf("stmt Prepare failed: %s\n", err)
 		return false
 	}
+
 	defer stmt.Close()
 
 	rows, err := stmt.Query(username)
@@ -61,7 +71,7 @@ func TabUserDataQuery(username string, password string) bool {
 
 // TabTokenDataInsert 写入token
 func TabTokenDataInsert(username string, token string) bool {
-	stmt, err := mydb.DBConnect().Prepare("INSERT IGNORE INTO tabtoken (`user_name`, `user_token`) values (?,?)")
+	stmt, err := mydb.DBConnect().Prepare("REPLACE INTO tabtoken (`user_name`, `user_token`) values (?,?)")
 	if err != nil {
 		log.Printf("token 写入失败： %s\n", err)
 		return false
@@ -85,7 +95,7 @@ func TabTokenDataInsert(username string, token string) bool {
 
 // IsValidateToken  验证token的有效性
 func IsValidateToken(u string, p string) bool {
-	stmt, err := mydb.DBConnect().Prepare("SELECT token FROM tabtoken WHERE user_name=\"?\"")
+	stmt, err := mydb.DBConnect().Prepare("SELECT user_token FROM tabtoken WHERE user_name=? limit 1")
 	if err != nil {
 		log.Printf("prepare sql failed: %s\n", err)
 		return false
@@ -94,6 +104,9 @@ func IsValidateToken(u string, p string) bool {
 
 	var pwd string
 	err = stmt.QueryRow(u).Scan(&pwd)
+
+	log.Println(pwd)
+
 	if err != nil {
 		log.Printf("query row failed: %s\n", err)
 		return false
@@ -104,4 +117,20 @@ func IsValidateToken(u string, p string) bool {
 	}
 
 	return true
+}
+
+// TabUserInfoQuery 查询用户信息
+func TabUserInfoQuery(u string) (User, error) {
+	user := User{}
+	stmt, err := mydb.DBConnect().Prepare("SELECT user_name, signup_at FROM tabuser WHERE user_name=? limit 1")
+	if err != nil {
+		return user, err
+	}
+	defer stmt.Close()
+	err = stmt.QueryRow(u).Scan(&user.Username, &user.SignupAt)
+	if err != nil {
+		return user, nil
+	}
+
+	return user, nil
 }

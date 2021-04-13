@@ -3,6 +3,7 @@ package handler
 import (
 	"cloudstorage/v1/db"
 	"cloudstorage/v1/utils"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -92,11 +93,11 @@ func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 			Msg:  "登录成功",
 			Data: struct {
 				Location string
-				UserName string
+				Username string
 				Token    string
 			}{
-				Location: "/static/view/home.html",
-				UserName: username,
+				Location: "/user/home",
+				Username: username,
 				Token:    token,
 			},
 		}
@@ -116,7 +117,7 @@ func GetToken(username string) string {
 
 // UserInfoHandler 用户信息
 func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
+	if r.Method == http.MethodPost {
 		// 展示用户信息
 		username := r.FormValue("username")
 		token := r.FormValue("token")
@@ -128,7 +129,41 @@ func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// 校验成功后，获取用户信息
-
+		user, err := db.TabUserInfoQuery(username)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				log.Printf("No match row")
+				w.Write([]byte("query failed"))
+				return
+			}
+		}
 		// 返回用户数据信息
+		res := utils.RespMsg{
+			Code: 0,
+			Msg:  "获取信息成功",
+			Data: struct {
+				Username string
+				SignupAt string
+			}{
+				Username: username,
+				SignupAt: user.SignupAt,
+			},
+		}
+		w.Write(res.JSONBytes())
 	}
+}
+
+// UserHomeHandler 用户home
+func UserHomeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		data, err := ioutil.ReadFile("static/view/home.html")
+		if err != nil {
+			log.Printf("Not Found home.html %s\n", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.Write(data)
+		return
+	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
 }
