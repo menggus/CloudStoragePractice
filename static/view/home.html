@@ -111,7 +111,9 @@
         if (!body) {
           return;
         }
-        var data = JSON.parse(body);
+        var res = JSON.parse(body);
+        var data = res.data
+        console.log(data)
         if (!data || data.length <= 0) {
           return;
         }
@@ -119,19 +121,19 @@
         for (var i = 0; i < data.length; i++) {
           var x = document.getElementById('filetbl').insertRow();
           var cell = x.insertCell();
-          cell.innerHTML = data[i].FileHash.substr(0, 20)+"...";
+          cell.innerHTML = data[i].file_sha1.substr(0, 20)+"...";
 
           cell = x.insertCell();
-          cell.innerHTML = data[i].FileName;
+          cell.innerHTML = data[i].file_name;
 
           cell = x.insertCell();
-          cell.innerHTML = data[i].FileSize;
+          cell.innerHTML = data[i].file_size;
 
           cell = x.insertCell();
-          cell.innerHTML = data[i].UploadAt;
+          cell.innerHTML = data[i].upload_at;
 
           cell = x.insertCell();
-          cell.innerHTML = data[i].LastUpdated;
+          cell.innerHTML = data[i].last_update;
 
           cell = x.insertCell();
           cell.innerHTML = '<button class="btn btn-success" ' +
