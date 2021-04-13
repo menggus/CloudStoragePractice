@@ -4,6 +4,7 @@
 package handler
 
 import (
+	"cloudstorage/v1/db"
 	"cloudstorage/v1/meta"
 	"cloudstorage/v1/utils"
 	"encoding/json"
@@ -16,7 +17,7 @@ import (
 	"time"
 )
 
-// FileUploadHandler 文件接口
+//FileHandler 文件接口
 func FileHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
@@ -59,19 +60,28 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		// 在计算大文件的hash值时，是非常花费时间的，可以抽取为独立的微服务进行异步处理
 		// 上传文件的sha1值
 		nf.Seek(0, 0) // 游标重新回到文件头部
 		fileMeta.FileSha1 = utils.FileSha1(nf)
 
+		// 上传文件到用户表
+		username := r.FormValue("username")
+		ok := db.TabUserFileInsert(username, fileMeta.FileSha1, fileMeta.FileName, fileMeta.FileSize)
+		if !ok {
+			log.Printf("user file insert failed")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		// 上传存储元信息
 		//meta.UpdateFileMetas(fileMeta)
-		ok := meta.UpdateFileMetasDB(fileMeta)
+		ok = meta.UpdateFileMetasDB(fileMeta)
 		if !ok {
 			log.Printf("File upload failed")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		http.Redirect(w, r, "/msg/succed", http.StatusFound)
+		http.Redirect(w, r, "/user/home", http.StatusFound)
 	}
 }
 

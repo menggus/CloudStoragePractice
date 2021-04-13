@@ -2,6 +2,7 @@ package handler
 
 import (
 	"cloudstorage/v1/db"
+	"cloudstorage/v1/utils"
 	"log"
 	"net/http"
 )
@@ -10,16 +11,21 @@ import (
 func FileDataQuery(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username")
-		token := r.FormValue("token")
 		// 校验token
-		ok := db.IsValidateToken(username, token)
-		if !ok {
-			log.Println("token validate failed")
-			w.Write([]byte("token validate failed"))
+		// 获取用户文件信息
+		data, err := db.TabUserFileQueryRows(username)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		// 获取用户文件信息
+		res := utils.RespMsg{
+			Code: 0,
+			Msg:  "succeed",
+			Data: data,
+		}
+		log.Printf("%+v\n", res)
 
+		w.Write(res.JSONBytes())
 	}
 }

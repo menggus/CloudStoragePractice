@@ -120,14 +120,14 @@ func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		// 展示用户信息
 		username := r.FormValue("username")
-		token := r.FormValue("token")
-		// 校验token
-		ok := db.IsValidateToken(username, token)
-		if !ok {
-			log.Println("token validate failed")
-			w.Write([]byte("token validate failed"))
-			return
-		}
+		//token := r.FormValue("token")
+		//// 校验token
+		//ok := db.IsValidateToken(username, token)
+		//if !ok {
+		//	log.Println("token validate failed")
+		//	w.Write([]byte("token validate failed"))
+		//	return
+		//}
 		// 校验成功后，获取用户信息
 		user, err := db.TabUserInfoQuery(username)
 		if err != nil {

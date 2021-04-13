@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	http.Handle("/", http.FileServer(http.Dir(".")))
 	http.HandleFunc("/file", handler.FileHandler)
 	http.HandleFunc("/msg/succed", handler.SuccedHandler)
 	http.HandleFunc("/file/meta", handler.QueryFileInfoHandler)
@@ -16,7 +17,8 @@ func main() {
 	http.HandleFunc("/user/signup", handler.UserRegisterHandler)
 	http.HandleFunc("/user/signin", handler.UserLoginHandler)
 	http.HandleFunc("/user/home", handler.UserHomeHandler)
-	http.HandleFunc("/user/info", handler.UserInfoHandler)
+	http.HandleFunc("/user/info", handler.TokenHandler(handler.UserInfoHandler))
+	http.HandleFunc("/file/query", handler.TokenHandler(handler.FileDataQuery))
 
 	err := http.ListenAndServe(":8888", nil)
 	if err != nil {
