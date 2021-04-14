@@ -19,6 +19,7 @@ func main() {
 	http.HandleFunc("/user/home", handler.UserHomeHandler)
 	http.HandleFunc("/user/info", handler.TokenHandler(handler.UserInfoHandler))
 	http.HandleFunc("/file/query", handler.TokenHandler(handler.FileDataQuery))
+	http.HandleFunc("/file/fastupload", handler.TokenHandler(handler.FileFastUpload))
 
 	err := http.ListenAndServe(":8888", nil)
 	if err != nil {
