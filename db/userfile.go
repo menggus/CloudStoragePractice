@@ -54,9 +54,18 @@ func TabUserFileInsert(username, sha1, filename string, filesize int64) bool {
 	}
 
 	if row, err := ret.RowsAffected(); err == nil {
+
+		if row < 0 { // row < 0 sql 插入数据失败，数据已存在
+			log.Printf("File with hash[%s] already exists\n", sha1)
+
+			return false
+		}
+
 		if row == 0 { // row < 0 sql 插入数据失败，数据已存在
 			log.Printf("File with hash[%s] already exists\n", sha1)
-			return false
+			// todo 这里插入数据失败，可能文件已经上传过
+
+			return true
 		}
 	}
 	return true
