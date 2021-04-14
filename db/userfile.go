@@ -15,10 +15,12 @@ type UserFile struct {
 	LastUpdated string
 }
 
-// TabFileQueryRows 查询所有文件信息
+// TabUserFileQueryRows 查询所有文件信息
 func TabUserFileQueryRows(u string) ([]map[string]interface{}, error) {
+
+	// todo 查询数量的控制
 	stmt, err := mydb.DBConnect().Prepare("SELECT file_sha1, file_name, file_size, upload_at, last_update FROM tabuserfile " +
-		"WHERE user_name=? AND status=0")
+		"WHERE user_name=? AND status=0 limit 15")
 	if err != nil {
 		log.Printf("TabUserFileQueryRows sql prepare failed: %s\n", err)
 		return nil, err
