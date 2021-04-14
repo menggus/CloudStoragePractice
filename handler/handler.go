@@ -110,11 +110,11 @@ func QueryFileInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 // DownloadFileHandler 下载文件接口
 func DownloadFileHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
+	if r.Method == http.MethodPost {
 		// r.ParseForm()
 		sha1 := r.FormValue("sha1")
-		filemeta := meta.GetFileMeta(sha1)
-
+		//filemeta := meta.GetFileMeta(sha1)
+		filemeta := meta.GetFileMetaDB(sha1)
 		// 这里只是针对于小文件的读取，大文件需要以流的方式来读
 		data, err := ioutil.ReadFile(filemeta.FilePath)
 		if err != nil {
