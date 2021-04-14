@@ -57,7 +57,7 @@ func FileFastUpload(w http.ResponseWriter, r *http.Request) {
 			w.Write(res.JSONBytes())
 			return
 		}
-		// todo 文件秒传
+		// 文件秒传
 		ok := db.TabUserFileInsert(username, filesha1, filename, int64(filesize))
 		if !ok {
 			log.Printf("文件妙传，插入用户文件表中数据失败")
