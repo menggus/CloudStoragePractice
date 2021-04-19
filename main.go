@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/user/info", handler.TokenHandler(handler.UserInfoHandler))
 	http.HandleFunc("/file/query", handler.TokenHandler(handler.FileDataQuery))
 	http.HandleFunc("/file/fastupload", handler.TokenHandler(handler.FileFastUpload))
+	http.HandleFunc("/file/init", handler.TokenHandler(handler.InitMultipartUploadHandler))
 
 	err := http.ListenAndServe(":8888", nil)
 	if err != nil {
