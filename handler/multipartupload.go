@@ -47,10 +47,12 @@ func InitMultipartUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 4.写入分块信息到redis
 	ctx := context.Background()
-	rds.Do(ctx, "HSET", "mp_"+uploadinfo.FileUploadID, "PartCount", uploadinfo.PartCount)
-	rds.Do(ctx, "HSET", "mp_"+uploadinfo.FileUploadID, "FileSha1", uploadinfo.FileSha1)
-	rds.Do(ctx, "HSET", "mp_"+uploadinfo.FileUploadID, "FileSize", uploadinfo.FileSize)
-
+	//rds.Do(ctx, "HSET", "mp_"+uploadinfo.FileUploadID, "PartCount", uploadinfo.PartCount)
+	//rds.Do(ctx, "HSET", "mp_"+uploadinfo.FileUploadID, "FileSha1", uploadinfo.FileSha1)
+	//rds.Do(ctx, "HSET", "mp_"+uploadinfo.FileUploadID, "FileSize", uploadinfo.FileSize)
+	// HSET 4.0 以上新版本可以一次性设置多个值
+	rds.Do(ctx, "HSET", "mp_"+uploadinfo.FileUploadID, "PartCount", uploadinfo.PartCount, "FileSha1",
+		uploadinfo.FileSha1, "FileSize", uploadinfo.FileSize)
 	// 5.返回响应
 	w.Write(utils.NewRespMsg(1, "init multipart upload succeed", uploadinfo).JSONBytes())
 }
