@@ -66,7 +66,7 @@ func UploadPartHandler(w http.ResponseWriter, r *http.Request) {
 	// 1.解析参数
 	r.ParseForm()
 	// username := r.Form.Get("username")
-	ID := r.Form.Get("id")       // 文件上传 文件id
+	id := r.Form.Get("uploadID") // 文件上传 文件id
 	index := r.Form.Get("index") // 分块 id
 
 	// 2.获取redis连接
@@ -79,7 +79,7 @@ func UploadPartHandler(w http.ResponseWriter, r *http.Request) {
 	defer rds.Close()
 
 	// 3.获取文件句柄，用于存储 分块内容
-	fd, err := os.OpenFile("/tmp/"+ID+"/"+index, os.O_RDWR|os.O_CREATE, 0666)
+	fd, err := os.OpenFile("/data/"+id+"/"+index, os.O_RDWR|os.O_CREATE, 0744)
 	if err != nil {
 		log.Printf("get file object failed： %s\n", err)
 		w.Write(utils.NewRespMsg(-1, "multipart upload failed", nil).JSONBytes())
@@ -107,8 +107,30 @@ func UploadPartHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 5. 写入redis记录分块上传状态
 	ctx := context.Background()
-	rds.Do(ctx, "HSET", "mp_"+ID, "chkidx"+index, 1)
+	rds.Do(ctx, "HSET", "mp_"+id, "chkidx_"+index, 1)
 
 	// 6. 返回消息
 	w.Write(utils.NewRespMsg(1, "upload multi part success", nil).JSONBytes())
 }
+
+// MultipartMerageHandler 分块合并接口
+//func MultipartMerageHandler(w http.ResponseWriter, r *http.Request) {
+//	// 1.解析参数
+//	r.ParseForm()
+//	username := r.Form.Get("username")
+//	id := r.Form.Get("uploadID")
+//	filesha1 := r.Form.Get("sha1")
+//	filesize := r.Form.Get("filesize")
+//
+//	// 2.获取redis连接
+//	rds := cache.NewRedis()
+//	if rds == nil {
+//		log.Println("get redis server failed")
+//		w.WriteHeader(http.StatusInternalServerError)
+//		return
+//	}
+//
+//	// 3. 获取分块数据，是否已经全部上传完成
+//	ctx := context.Background()
+//	res := rds.Do(ctx, "HGETALL", "mp_"+id)
+//}
