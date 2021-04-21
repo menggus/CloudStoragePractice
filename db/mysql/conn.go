@@ -48,7 +48,6 @@ func ParseRows(rows *sql.Rows) []map[string]interface{} {
 				record[columns[i]] = col
 			}
 		}
-		// todo
 		records = append(records, record)
 	}
 

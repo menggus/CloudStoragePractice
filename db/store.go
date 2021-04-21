@@ -94,8 +94,8 @@ func TabFileDataDelete(fileSha1 string, act int8) bool {
 		}
 		return true
 
-	} else if act == 1 { // 物理删除
-		// todo
+	} else if act == 1 {
+		// todo  物理删除
 
 		return true
 	}
